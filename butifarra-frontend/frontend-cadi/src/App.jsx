@@ -55,6 +55,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Autenticación */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/registro" element={<SignupPage />} />
+
         {/* Rutas de beneficiario */}
         <Route path="/" element={<Navigate to="/inicio" replace />} />
         <Route path="/inicio" element={(<AdminHomePage />)} />
