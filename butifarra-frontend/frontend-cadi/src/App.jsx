@@ -21,6 +21,10 @@ import PsuVoluntariadosPage from "./pages/PsuVoluntariadosPage.jsx";
 import CitasPsicologicasPage from "./pages/CitasPsicologicasPage.jsx";
 import ReportesPage from "./pages/ReportesPage.jsx";
 import ActivitiesCalendar from "./pages/ActivitiesCalendar.jsx";
+import PersonalCalendar from "./pages/PersonalCalendar.jsx";
+
+
+
 
 
 
@@ -72,7 +76,7 @@ export default function App() {
         <Route path="/citas" element={(<CitasPsicologicasPage />)} />
         <Route path="/reportes" element={(<ReportesPage />)} />
         <Route path="/calendario" element={(<ActivitiesCalendar />)} />
-
+        <Route path="/mi-calendario" element={<PersonalCalendar />} />
         {/* Rutas de administrador */}
         <Route path="/admin/reports" element={<AdminReport />} />
         <Route path="/admin/home" element={(<AdminHomePage />)} />

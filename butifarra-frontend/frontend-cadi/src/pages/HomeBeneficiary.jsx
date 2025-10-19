@@ -1,5 +1,7 @@
+
 // src/pages/HomeBeneficiary.jsx
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
 import AppLayout from "../components/layout/AppLayout.jsx";
 import Button from "../components/ui/Button.jsx";
@@ -32,8 +34,10 @@ export default function HomeBeneficiary({
   onViewAllActivities,
   onEnroll,
 }) {
+  const navigate = useNavigate();
+  
   const kpiHandlers = {
-    upcoming: onViewCalendar,
+    upcoming: onViewCalendar || (() => navigate("/mi-calendario")),
     enrollments: onViewEnrollments,
     appointments: onManageAppointments,
     favorites: onViewFavorites,
@@ -48,7 +52,7 @@ export default function HomeBeneficiary({
           Explora actividades del Centro Artístico y Deportivo (CADI), inscríbete a eventos y gestiona tu bienestar.
         </p>
         <div className="mt-4">
-          <Button onClick={onViewCalendar}>Ver calendario</Button>
+          <Button onClick={() => navigate("/mi-calendario")}>Ver calendario</Button>
         </div>
       </section>
 
