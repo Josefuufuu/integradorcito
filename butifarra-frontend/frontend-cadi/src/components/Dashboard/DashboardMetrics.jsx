@@ -16,12 +16,9 @@ export const DashboardMetrics = () => {
   ];
 
   return (
-    <div className="flex flex-wrap justify-between gap-y-6 px-6">
+    <div className="flex flex-wrap gap-x-[22px] gap-y-6 px-[32px] justify-start">
       {metrics.map((metric, index) => (
-        <div
-          key={index}
-          className="w-full sm:w-[48%] lg:w-[260px]"
-        >
+        <div key={index} className="flex-grow basis-[calc((100%-66px)/4)] max-w-[260px] min-w-[180px]">
           <MetricCard
             title={metric.title}
             value={metric.value}

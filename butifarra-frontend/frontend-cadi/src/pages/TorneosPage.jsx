@@ -1,4 +1,4 @@
-import AppLayout from "../components/Layout/AppLayout.jsx";
+import AppLayout from "../components/layout/AppLayout.jsx";
 
 export default function TorneosPage() {
   return (

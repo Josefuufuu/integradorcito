@@ -1,11 +1,14 @@
+// src/pages/TestRatingPage.jsx
+
 import React, { useState } from 'react';
 import RatingAndComment from '../components/ui/RatingAndComment';
 import CommentList from '../components/ui/CommentList';
+import AppLayout from '../components/layout/AppLayout.jsx';
 
 export default function TestRatingPage() {
   const [comments, setComments] = useState([]);
 
-  // Función para PUBLICAR un nuevo comentario
+  // --- TU LÓGICA EXISTENTE---
   const handlePublishReview = (newRating, newComment) => {
     const newReview = { 
       id: Date.now(),
@@ -18,7 +21,6 @@ export default function TestRatingPage() {
     setComments(prevComments => [newReview, ...prevComments]);
   };
 
-  // Función para GUARDAR la edición de un comentario
   const handleEditSave = (commentId, newRating, newComment) => {
     setComments(prevComments =>
       prevComments.map(c =>
@@ -29,32 +31,31 @@ export default function TestRatingPage() {
     );
   };
 
-  // Función para ELIMINAR un comentario de la lista
   const handleDeleteComment = (commentId) => {
     setComments(prevComments =>
-      // Filtramos la lista, quedándonos solo con los comentarios que NO tengan el ID a eliminar
       prevComments.filter(comment => comment.id !== commentId)
     );
   };
 
   return (
-    <div className="page-container">
-      <header className="page-header">
-        <h1>Actividad: Taller de Fotografía (Finalizada)</h1>
-        <p>Has asistido a esta actividad. ¡Por favor, déjanos tu opinión!</p>
-      </header>
-      <div className="form-card">
-        <RatingAndComment
-          onSubmit={handlePublishReview}
-          buttonText="Publicar Comentario"
-        />
-        {/* Pasamos la nueva función de eliminar al componente de la lista */}
-        <CommentList 
-          comments={comments} 
-          onEditSave={handleEditSave} 
-          onDelete={handleDeleteComment} 
-        />
+    <AppLayout>
+      <div className="page-container" style={{ margin: 0, maxWidth: '100%', padding: 0 }}>
+        <header className="page-header">
+          <h1>Actividad: Taller de Fotografía (Finalizada)</h1>
+          <p>Has asistido a esta actividad. ¡Por favor, déjanos tu opinión!</p>
+        </header>
+        <div className="form-card">
+          <RatingAndComment
+            onSubmit={handlePublishReview}
+            buttonText="Publicar Comentario"
+          />
+          <CommentList
+            comments={comments}
+            onEditSave={handleEditSave}
+            onDelete={handleDeleteComment}
+          />
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

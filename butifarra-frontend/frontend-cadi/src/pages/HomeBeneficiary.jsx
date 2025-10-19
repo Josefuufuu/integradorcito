@@ -1,10 +1,11 @@
+// src/pages/HomeBeneficiary.jsx
 import PropTypes from "prop-types";
-import { Sidebar } from "../components/Sidebar/Sidebar";
+
+import AppLayout from "../components/layout/AppLayout.jsx";
 import Button from "../components/ui/Button.jsx";
 import StatCard from "../components/ui/StatCard.jsx";
 import ActivityCard from "../components/ActivityCard.jsx";
 import SectionHeader from "../components/ui/SectionHeader.jsx";
-import { TopBar } from "../components/Dashboard/TopBar";
 
 // Datos mock para arrancar (luego los reemplazas por los del backend)
 const defaultStats = [
@@ -39,57 +40,51 @@ export default function HomeBeneficiary({
   };
 
   return (
-   <main style={{ display: 'grid', gridTemplateColumns: '230px 1fr' }} className="h-screen w-screen">
-    <Sidebar />
-    <div className="h-full overflow-y-auto bg-stone-50">
-      <TopBar />
-      <div className="px-6 py-6 space-y-6 pt-40">
-        {/* Hero */}
-        <section className="rounded-2xl p-6 text-white bg-indigo-600">
-          <h1 className="text-2xl font-semibold mb-1">¡Hola, {userName}!</h1>
-          <p className="opacity-90">
-            Explora actividades del Centro Artístico y Deportivo (CADI), inscríbete a eventos y gestiona tu bienestar.
-          </p>
-          <div className="mt-4">
-            <Button onClick={onViewCalendar}>Ver calendario</Button>
-          </div>
-        </section>
-
-        {/* KPIs */}
-        <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4">
-          {stats.map((s) => (
-            <StatCard
-              key={s.id}
-              title={s.title}
-              value={s.value}
-              cta={s.cta}
-              tone={s.tone}
-              onClick={() => kpiHandlers[s.id]?.()}
-            />
-          ))}
+    <AppLayout>
+      {/* Hero */}
+      <section className="rounded-2xl p-6 text-white bg-indigo-600 mb-6">
+        <h1 className="text-2xl font-semibold mb-1">¡Hola, {userName}!</h1>
+        <p className="opacity-90">
+          Explora actividades del Centro Artístico y Deportivo (CADI), inscríbete a eventos y gestiona tu bienestar.
+        </p>
+        <div className="mt-4">
+          <Button onClick={onViewCalendar}>Ver calendario</Button>
         </div>
+      </section>
 
-        {/* Encabezado de sección */}
-        <SectionHeader title="Actividades destacadas" onViewAll={onViewAllActivities} />
-
-        {/* Cards de actividades */}
-        <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
-          {highlights.map((a) => (
-            <ActivityCard
-              key={a.id}
-              title={a.title}
-              tags={a.tags}
-              place={a.place}
-              when={a.when}
-              rating={a.rating}
-              quota={a.quota}
-              onEnroll={() => onEnroll?.(a)}
-            />
-          ))}
-        </div>
+      {/* KPIs */}
+      <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 mb-6">
+        {stats.map((s) => (
+          <StatCard
+            key={s.id}
+            title={s.title}
+            value={s.value}
+            cta={s.cta}
+            tone={s.tone}             // asegúrate que StatCard soporte este prop
+            onClick={() => kpiHandlers[s.id]?.()}
+          />
+        ))}
       </div>
-    </div>
-  </main>
+
+      {/* Encabezado de sección */}
+      <SectionHeader title="Actividades destacadas" onViewAll={onViewAllActivities} />
+
+      {/* Cards de actividades */}
+      <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
+        {highlights.map((a) => (
+          <ActivityCard
+            key={a.id}
+            title={a.title}
+            tags={a.tags}            // Tag.jsx se usa dentro de ActivityCard
+            place={a.place}
+            when={a.when}
+            rating={a.rating}
+            quota={a.quota}
+            onEnroll={() => onEnroll?.(a)}
+          />
+        ))}
+      </div>
+    </AppLayout>
   );
 }
 
@@ -101,7 +96,7 @@ HomeBeneficiary.propTypes = {
       title: PropTypes.string.isRequired,
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       cta: PropTypes.string,
-      tone: PropTypes.string,
+      tone: PropTypes.string, // ajusta si usas un enum en tu StatCard
     })
   ),
   highlights: PropTypes.arrayOf(

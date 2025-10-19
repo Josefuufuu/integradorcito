@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { apiFetch } from "../services/api";
 
@@ -49,7 +42,7 @@ const extractMessage = (data, status) => {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleUserData = useCallback((payload) => {
@@ -148,50 +141,14 @@ export function AuthProvider({ children }) {
     }
   }, [handleUserData]);
 
-  const register = useCallback(async ({
-    username,
-    email,
-    password1,
-    password2,
-  }) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await apiFetch("/api/register/", {
-        method: "POST",
-        body: JSON.stringify({ username, email, password1, password2 }),
-      });
-
-      const { data, ok, status } = await parseResponse(response);
-
-      if (!ok) {
-        throw new Error(extractMessage(data, status));
-      }
-
-      return handleUserData(data);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo crear la cuenta.";
-      setError(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [handleUserData]);
-
   const value = useMemo(() => ({
     user,
     loading,
     error,
     login,
-    register,
     logout,
     restoreSession,
-  }), [user, loading, error, login, register, logout, restoreSession]);
-
-  useEffect(() => {
-    restoreSession();
-  }, [restoreSession]);
+  }), [user, loading, error, login, logout, restoreSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -22,7 +22,7 @@ export default function StudentSidebar() {
       </div>
       <nav className="sidebar-nav">
         <NavItem to="/inicio" icon={<FiHome />}>Inicio</NavItem>
-        <NavItem to="/test-rating" icon={<FiGrid />}>Explorar CADI</NavItem>
+        <NavItem to="/explorar-cadi" icon={<FiGrid />}>Explorar CADI</NavItem>
         <NavItem to="/citas" icon={<FiHeart />}>Citas psicológicas</NavItem>
         <NavItem to="/eventos-psu" icon={<FiUsers />}>Eventos y PSU</NavItem>
         <NavItem to="/mi-calendario" icon={<FiCalendar />}>Mi calendario</NavItem>

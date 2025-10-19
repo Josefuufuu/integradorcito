@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LoginForm from "../components/layout/LoginForm.jsx";
 import loginBackground from "../assets/login-background.jpg";
 import icesiLogo from "../assets/icesi-logo.png";
@@ -45,12 +45,6 @@ export default function LoginPage() {
           {errorMessage && !loading && (
             <p className="text-sm text-red-600">{errorMessage}</p>
           )}
-          <p className="mt-4 text-sm text-gray-600">
-            ¿No tienes una cuenta?{" "}
-            <Link className="font-medium text-indigo-600 hover:underline" to="/registro">
-              Regístrate
-            </Link>
-          </p>
         </div>
       </div>
 
