@@ -11,7 +11,7 @@ const parseResponse = async (response) => {
   if (text) {
     try {
       data = JSON.parse(text);
-    } catch (error) {
+    } catch {
       data = null;
     }
   }
@@ -141,14 +141,49 @@ export function AuthProvider({ children }) {
     }
   }, [handleUserData]);
 
+  const register = useCallback(async ({ username, email, password1, password2 }) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await apiFetch("/api/register/", {
+        method: "POST",
+        body: JSON.stringify({ username, email, password1, password2 }),
+      });
+
+      const { data, ok, status } = await parseResponse(response);
+
+      if (!ok) {
+        if (data && typeof data === "object" && data.errors) {
+          const [firstField] = Object.keys(data.errors);
+          const [firstMessage] = Array.isArray(data.errors[firstField])
+            ? data.errors[firstField]
+            : [data.errors[firstField]];
+          throw new Error(firstMessage || "No se pudo crear la cuenta.");
+        }
+
+        throw new Error(extractMessage(data, status));
+      }
+
+      return handleUserData(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "No se pudo crear la cuenta.";
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [handleUserData]);
+
   const value = useMemo(() => ({
     user,
     loading,
     error,
     login,
+    register,
     logout,
     restoreSession,
-  }), [user, loading, error, login, logout, restoreSession]);
+  }), [user, loading, error, login, register, logout, restoreSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
