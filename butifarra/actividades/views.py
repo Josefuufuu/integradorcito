@@ -3,7 +3,8 @@ import json
 from django import forms
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.middleware.csrf import get_token
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from rest_framework import viewsets, permissions
@@ -210,3 +211,12 @@ class TournamentViewSet(viewsets.ModelViewSet):
     queryset = Tournament.objects.all().order_by('-created_at')
     serializer_class = TournamentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+@ensure_csrf_cookie
+def api_csrf(request):
+    if request.method != "GET":
+        return JsonResponse({"ok": False, "error": "Method not allowed"}, status=405)
+
+    token = get_token(request)
+    return JsonResponse({"ok": True, "csrftoken": token}, status=200)
