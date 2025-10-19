@@ -1,5 +1,6 @@
 import { useReducer, useState } from "react";
 import AppLayout from "../components/layout/AppLayout.jsx";
+import { getCookie } from "../utils/csrf";
 
 const initialState = {
   name: "",
@@ -49,7 +50,7 @@ export default function CreateTournamentPage() {
     return e;
   };
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
     const e = validate();
     setErrors(e);
@@ -57,12 +58,45 @@ export default function CreateTournamentPage() {
 
     setStatus({ loading: true, ok: false, msg: "" });
 
-    // Solo frontend: imprime y muestra mensaje local.
-    setTimeout(() => {
-      console.log("Torneo a crear (solo frontend):", form);
-      setStatus({ loading: false, ok: true, msg: "Torneo creado (mock). Puedes conectar al backend luego." });
+    const payload = {
+      name: form.name.trim(),
+      sport: form.sport,
+      format: form.format,
+      max_teams: Number(form.maxTeams),
+      current_teams: 0,
+      start_date: form.startDate,
+      end_date: form.endDate,
+      description: form.description,
+      phase: "Planificación",
+    };
+
+    try {
+      const csrfToken = getCookie("csrftoken");
+      const response = await fetch("/api/torneos/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          throw new Error("Tu sesión no tiene permisos para crear torneos. Inicia sesión con un usuario autorizado.");
+        }
+        const message = data?.detail || data?.error || "Error al crear el torneo.";
+        throw new Error(message);
+      }
+
+      await response.json();
+      setStatus({ loading: false, ok: true, msg: "Torneo creado correctamente." });
       dispatch({ type: "reset" });
-    }, 500);
+    } catch (err) {
+      setStatus({ loading: false, ok: false, msg: err.message || "No se pudo crear el torneo." });
+    }
   };
 
   return (
