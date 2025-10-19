@@ -1,38 +1,36 @@
 // src/hooks/useTorneos.js
 import { useState, useEffect, useCallback } from 'react';
 
-const API_URL = 'https://tu-api-de-ejemplo.com/api/v1/tournaments'; 
+const API_URL = '/api/torneos/'; 
 
 export const useTorneos = () => {
   const [torneos, setTorneos] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchTorneos = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-
-      setTimeout(() => setLoading(false), 500);
-
-
-    } catch (err) {
-      setError(err.message);
-    } finally {
-
-    }
-  }, []);
+  const fetchTorneos = async () => {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    setTorneos(data);
+  } catch (err) { setError(err.message); }
+};
 
   useEffect(() => {
     fetchTorneos();
   }, [fetchTorneos]);
 
-  const createTorneo = async (torneoData) => {
-    console.log("Enviando datos para crear torneo al backend:", torneoData);
-
-    const newTournament = { ...torneoData, id: Date.now(), phase: 'Inscripciones', currentTeams: 0 };
-    setTorneos(prev => [newTournament, ...prev]);
-  };
+const createTorneo = async (torneoData) => {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    credentials: 'include',
+    body: JSON.stringify(torneoData)
+  });
+  if (!response.ok) throw new Error('Error al crear torneo');
+  const newTorneo = await response.json();
+  setTorneos(prev => [newTorneo, ...prev]);
+};
 
   const deleteTorneo = async (id) => {
     console.log("Enviando solicitud para eliminar torneo con ID:", id);

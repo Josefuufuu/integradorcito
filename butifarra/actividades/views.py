@@ -6,6 +6,9 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from rest_framework import viewsets, permissions
+from .models import Tournament
+from .serializers import TournamentSerializer
 
 def index(request):
     return HttpResponse("Bienvenidos al Centro Artístico y Deportivo")
@@ -201,3 +204,9 @@ def api_register(request):
         logged_user = user
 
     return JsonResponse({"ok": True, "user": _serialize_user(logged_user)}, status=200)
+
+
+class TournamentViewSet(viewsets.ModelViewSet):
+    queryset = Tournament.objects.all().order_by('-created_at')
+    serializer_class = TournamentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]

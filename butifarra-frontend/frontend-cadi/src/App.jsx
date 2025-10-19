@@ -15,7 +15,8 @@ import PsuVoluntariadosPage from "./pages/PsuVoluntariadosPage.jsx";
 import CitasPsicologicasPage from "./pages/CitasPsicologicasPage.jsx";
 import ReportesPage from "./pages/ReportesPage.jsx";
 import AdminTorneosPage from "./pages/AdminTorneosPage.jsx";
-import AppLayout from "./components/layout/AppLayout.jsx";
+import AppLayout from "./components/Layout/AppLayout.jsx";
+import AdminReport from "./pages/AdminReport.jsx";
 
 
 function NotFound() {
@@ -59,7 +60,6 @@ export default function App() {
         <Route path="/inicio" element={(<AdminHomePage />)} />
         <Route path="/HomeBeneficiary" element={(<HomeBeneficiary userName="Pablo" />)} />
         <Route path="/gestion-cadi" element={(<GestionCadiPage />)} />
-        <Route path="/dev-torneos" element={<AppLayout><AdminTorneosPage /></AppLayout>} />
         <Route path="/torneos" element={(<TorneosPage />)} />
         <Route path="/psu" element={(<PsuVoluntariadosPage />)} />
         <Route path="/citas" element={(<CitasPsicologicasPage />)} />
@@ -72,6 +72,8 @@ export default function App() {
         <Route path="/notificaciones" element={(<NotificationsPage />)} />
         <Route path="/actividades/crear" element={(<CreateActivity />)} />
         <Route path="/admin/form-inscripcion" element={(<AdminFormInscripcion />)} />
+        <Route path="/dev-torneos" element={<AppLayout><AdminTorneosPage /></AppLayout>} />
+      
       </Routes>
     </BrowserRouter>
   );

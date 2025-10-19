@@ -1,8 +1,15 @@
 # actividades/urls.py
 
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter   
+from .views import TournamentViewSet
+
+router = DefaultRouter()
+router.register(r'api/torneos', TournamentViewSet)
+
 
 from . import views
+
 
 urlpatterns = [
     path('', views.login_view, name='login'),  # Ruta principal de la aplicación
@@ -15,4 +22,5 @@ urlpatterns = [
     path('api/session/', views.api_session),
     # POST JSON payload: {"username", "email", "password1", "password2"}
     path('api/register/', views.api_register),
+    path('', include(router.urls)),
 ]

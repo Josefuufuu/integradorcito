@@ -10,4 +10,6 @@ export default function AdminReport() {
       <Dashboard />
     </main>
   );
+  
+
 }
