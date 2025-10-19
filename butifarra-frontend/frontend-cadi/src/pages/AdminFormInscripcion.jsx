@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AppLayout from "../components/layout/AppLayout.jsx";
 
 export default function AdminFormInscripcion() {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ export default function AdminFormInscripcion() {
   };
 
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
     if (!formData.nombre.trim()) newErrors.nombre = "El nombre es obligatorio";
     if (!formData.correo.includes("@")) newErrors.correo = "Correo inválido";
     if (!formData.taller) newErrors.taller = "Selecciona un taller";
@@ -35,81 +36,67 @@ export default function AdminFormInscripcion() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Encabezado */}
-      <header className="bg-indigo-700 text-white py-4 shadow-md">
-        <div className="max-w-4xl mx-auto flex items-center justify-between px-6">
-          {/* Logo (puede ser una imagen o solo texto por ahora) */}
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl font-bold">🎓 CADI</span>
+    <AppLayout>
+      <section className="mx-auto w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="text-center">
+          <span className="text-4xl">🎓</span>
+          <h1 className="mt-2 text-2xl font-semibold text-slate-800">Formulario de inscripción</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Registra rápidamente nuevos participantes en las actividades del CADI.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              placeholder="Ingresa el nombre completo"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+            />
+            {errors.nombre && <p className="mt-1 text-xs text-rose-500">{errors.nombre}</p>}
           </div>
-          <h1 className="text-xl font-semibold">Panel de Administrador</h1>
-        </div>
-      </header>
 
-      {/* Contenido principal */}
-      <main className="flex justify-center items-center py-10">
-        <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
-          <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
-            Formulario de Inscripción
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Nombre */}
-            <div>
-              <label className="block font-medium text-gray-700">Nombre</label>
-              <input
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                placeholder="Ingresa tu nombre"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-              {errors.nombre && <p className="text-red-500 text-sm">{errors.nombre}</p>}
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Correo electrónico</label>
+            <input
+              type="email"
+              name="correo"
+              value={formData.correo}
+              onChange={handleChange}
+              placeholder="ejemplo@correo.com"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+            />
+            {errors.correo && <p className="mt-1 text-xs text-rose-500">{errors.correo}</p>}
+          </div>
 
-            {/* Correo */}
-            <div>
-              <label className="block font-medium text-gray-700">Correo</label>
-              <input
-                type="email"
-                name="correo"
-                value={formData.correo}
-                onChange={handleChange}
-                placeholder="ejemplo@correo.com"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-              {errors.correo && <p className="text-red-500 text-sm">{errors.correo}</p>}
-            </div>
-
-            {/* Taller */}
-            <div>
-              <label className="block font-medium text-gray-700">Selecciona un taller</label>
-              <select
-                name="taller"
-                value={formData.taller}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="">-- Selecciona --</option>
-                <option value="arte">🎨 Arte</option>
-                <option value="deporte">⚽ Deporte</option>
-                <option value="musica">🎶 Música</option>
-              </select>
-              {errors.taller && <p className="text-red-500 text-sm">{errors.taller}</p>}
-            </div>
-
-            {/* Botón */}
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition"
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Selecciona un taller</label>
+            <select
+              name="taller"
+              value={formData.taller}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
             >
-              Enviar inscripción
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
+              <option value="">-- Selecciona --</option>
+              <option value="arte">🎨 Arte</option>
+              <option value="deporte">⚽ Deporte</option>
+              <option value="musica">🎶 Música</option>
+            </select>
+            {errors.taller && <p className="mt-1 text-xs text-rose-500">{errors.taller}</p>}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+          >
+            Enviar inscripción
+          </button>
+        </form>
+      </section>
+    </AppLayout>
   );
 }

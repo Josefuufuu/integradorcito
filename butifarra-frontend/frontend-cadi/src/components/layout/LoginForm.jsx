@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
 
 export default function LoginForm({
   email = "",
@@ -71,19 +70,12 @@ export default function LoginForm({
 
           {/* Primary CTA */}
           <div className="pt-6">
-            <Link
-              to="/admin/home"
-              className="inline-flex items-center justify-center h-[56px] w-[200px] rounded-xl bg-indigo-600 text-white transition-all hover:scale-[1.02] active:scale-[.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-
             <button
               type="submit"
               className="h-[56px] w-[200px] rounded-xl bg-indigo-600 text-white transition-all hover:scale-[1.02] active:scale-[.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Ingresar
             </button>
-             </Link>
-
           </div>
         </form>
       </div>

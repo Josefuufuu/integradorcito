@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Sidebar from '../components/layout/Sidebar';
+import AppLayout from '../components/layout/AppLayout.jsx';
 import CampaignsView from './CampaignsView'; 
 import CreateNotificationView from './CreateNotificationView';
 import Toast from '../components/ui/Toast';
@@ -98,60 +98,56 @@ export default function NotificationsPage() {
   };
   
   return (
-    <div className="app-layout">
-      <Sidebar />
-      <main className="main-content">
-        <div className="notifications-page">
-          <header className="page-header-notifications">
-            <div>
-              <h1 className="title">Gestión de notificaciones</h1>
-              <p className="subtitle">Crea y gestiona campañas de comunicación para estudiantes y personal</p>
-            </div>
-            {activeTab === 'Campañas' && (
-              <button className="btn btn-primary" onClick={() => {
-                setEditingCampaign(null); // Nos aseguramos de limpiar el modo edición al crear una nueva
-                setActiveTab('Crear notificación');
-              }}>
-                + Nueva campaña
-              </button>
-            )}
-          </header>
+    <AppLayout>
+      <div className="notifications-page">
+        <header className="page-header-notifications">
+          <div>
+            <h1 className="title">Gestión de notificaciones</h1>
+            <p className="subtitle">Crea y gestiona campañas de comunicación para estudiantes y personal</p>
+          </div>
+          {activeTab === 'Campañas' && (
+            <button className="btn btn-primary" onClick={() => {
+              setEditingCampaign(null);
+              setActiveTab('Crear notificación');
+            }}>
+              + Nueva campaña
+            </button>
+          )}
+        </header>
 
-          <nav className="tabs-nav">
-            <button className={`tab ${activeTab === 'Campañas' ? 'active' : ''}`} onClick={() => setActiveTab('Campañas')}>Campañas</button>
-            <button className={`tab ${activeTab === 'Crear notificación' ? 'active' : ''}`} onClick={() => setActiveTab('Crear notificación')}>Crear notificación</button>
-            <button className={`tab ${activeTab === 'Plantillas' ? 'active' : ''}`} onClick={() => setActiveTab('Plantillas')}>Plantillas</button>
-            <button className={`tab ${activeTab === 'Logs de envío' ? 'active' : ''}`} onClick={() => setActiveTab('Logs de envío')}>Logs de envío</button>
-          </nav>
-          
-          {activeTab === 'Campañas' && 
-            <CampaignsView 
-              campaigns={campaigns} 
-              onDelete={handleDelete} 
-              onEdit={handleEdit} 
-              onViewDetails={handleViewDetails} 
-            />
-          }
-          {activeTab === 'Crear notificación' && 
-            <CreateNotificationView 
-              onSave={handleSaveCampaign} 
-              onSwitchTab={setActiveTab}
-              editingCampaign={editingCampaign} 
-            />
-          }
-          {/* ... (placeholders) ... */}
-        </div>
-        
-        {showToast && <Toast message="Campaña eliminada." onUndo={handleUndoDelete} onDismiss={() => setShowToast(false)} />}
-        
-        <Modal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          title={modalContent.title}
-        >
-          <p>{modalContent.body}</p>
-        </Modal>
-      </main>
-    </div>
+        <nav className="tabs-nav">
+          <button className={`tab ${activeTab === 'Campañas' ? 'active' : ''}`} onClick={() => setActiveTab('Campañas')}>Campañas</button>
+          <button className={`tab ${activeTab === 'Crear notificación' ? 'active' : ''}`} onClick={() => setActiveTab('Crear notificación')}>Crear notificación</button>
+          <button className={`tab ${activeTab === 'Plantillas' ? 'active' : ''}`} onClick={() => setActiveTab('Plantillas')}>Plantillas</button>
+          <button className={`tab ${activeTab === 'Logs de envío' ? 'active' : ''}`} onClick={() => setActiveTab('Logs de envío')}>Logs de envío</button>
+        </nav>
+
+        {activeTab === 'Campañas' &&
+          <CampaignsView
+            campaigns={campaigns}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            onViewDetails={handleViewDetails}
+          />
+        }
+        {activeTab === 'Crear notificación' &&
+          <CreateNotificationView
+            onSave={handleSaveCampaign}
+            onSwitchTab={setActiveTab}
+            editingCampaign={editingCampaign}
+          />
+        }
+      </div>
+
+      {showToast && <Toast message="Campaña eliminada." onUndo={handleUndoDelete} onDismiss={() => setShowToast(false)} />}
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalContent.title}
+      >
+        <p>{modalContent.body}</p>
+      </Modal>
+    </AppLayout>
   );
 }

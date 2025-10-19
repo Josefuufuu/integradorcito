@@ -19,11 +19,11 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header">
         <h1>ICESI Bienestar</h1>
-        <span>Estudiante</span>
+        <span>Administrador</span>
       </div>
       <nav className="sidebar-nav">
-        <NavItem to="/admin/home" icon={<FiHome />}>Inicio</NavItem>
-        <NavItem to="/test-rating" icon={<FiGrid />}>Gestión CADI</NavItem>
+        <NavItem to="/inicio" icon={<FiHome />}>Inicio</NavItem>
+        <NavItem to="/gestion-cadi" icon={<FiGrid />}>Gestión CADI</NavItem>
         <NavItem to="/torneos" icon={<FiAward />}>Torneos</NavItem>
         <NavItem to="/psu" icon={<FiUsers />}>PSU / Voluntariados</NavItem>
         <NavItem to="/citas" icon={<FiHeart />}>Citas psicológicas</NavItem>

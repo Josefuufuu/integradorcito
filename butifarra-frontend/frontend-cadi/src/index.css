@@ -1,6 +1,12 @@
 @import "tailwindcss";
-;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+
+.sidebar-logo-color{
+  color: #324054;
+}
 
 /*
 :root {
