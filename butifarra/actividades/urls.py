@@ -2,7 +2,7 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter   
-from .views import TournamentViewSet
+from .views import TournamentViewSet, api_csrf
 
 router = DefaultRouter()
 router.register(r'api/torneos', TournamentViewSet)
@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/login/', views.api_login),
     path('api/logout/', views.api_logout),
     path('api/session/', views.api_session),
+    path('api/csrf/', api_csrf),
     # POST JSON payload: {"username", "email", "password1", "password2"}
     path('api/register/', views.api_register),
     path('', include(router.urls)),

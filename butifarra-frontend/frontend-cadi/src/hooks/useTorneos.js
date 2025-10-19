@@ -1,6 +1,6 @@
 // src/hooks/useTorneos.js
 import { useState, useEffect, useCallback } from 'react';
-import { getCookie } from '../utils/csrf';
+import { apiFetch } from '../services/api';
 
 const API_URL = '/api/torneos/';
 
@@ -12,7 +12,7 @@ export const useTorneos = () => {
   const fetchTorneos = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(API_URL, { credentials: 'include' });
+      const response = await apiFetch(API_URL);
       if (!response.ok) {
         throw new Error('Error al obtener torneos');
       }
@@ -31,14 +31,8 @@ export const useTorneos = () => {
   }, [fetchTorneos]);
 
   const createTorneo = useCallback(async (torneoData) => {
-    const csrfToken = getCookie('csrftoken');
-    const response = await fetch(API_URL, {
+    const response = await apiFetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
-      },
-      credentials: 'include',
       body: JSON.stringify(torneoData),
     });
 
@@ -53,13 +47,8 @@ export const useTorneos = () => {
   }, []);
 
   const deleteTorneo = useCallback(async (id) => {
-    const csrfToken = getCookie('csrftoken');
-    const response = await fetch(`${API_URL}${id}/`, {
+    const response = await apiFetch(`${API_URL}${id}/`, {
       method: 'DELETE',
-      headers: {
-        ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
-      },
-      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -70,14 +59,8 @@ export const useTorneos = () => {
   }, []);
 
   const updateTorneo = useCallback(async (updatedData) => {
-    const csrfToken = getCookie('csrftoken');
-    const response = await fetch(`${API_URL}${updatedData.id}/`, {
+    const response = await apiFetch(`${API_URL}${updatedData.id}/`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
-      },
-      credentials: 'include',
       body: JSON.stringify(updatedData),
     });
 

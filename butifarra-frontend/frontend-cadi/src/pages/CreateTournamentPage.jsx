@@ -1,6 +1,6 @@
 import { useReducer, useState } from "react";
 import AppLayout from "../components/layout/AppLayout.jsx";
-import { getCookie } from "../utils/csrf";
+import { apiFetch } from "../services/api";
 
 const initialState = {
   name: "",
@@ -71,14 +71,8 @@ export default function CreateTournamentPage() {
     };
 
     try {
-      const csrfToken = getCookie("csrftoken");
-      const response = await fetch("/api/torneos/", {
+      const response = await apiFetch("/api/torneos/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(csrfToken ? { "X-CSRFToken": csrfToken } : {}),
-        },
-        credentials: "include",
         body: JSON.stringify(payload),
       });
 
@@ -323,24 +317,6 @@ export default function CreateTournamentPage() {
               <div className={`toast ${status.ok ? "ok" : "error"}`}>
                 {status.msg}
               </div>
-            )}
-          </form>
-        </div>
-      </div>
-    </AppLayout>
-  );
-}
-                disabled={status.loading}
-              >
-                {status.loading ? "Guardando…" : "Crear torneo"}
-              </button>
-            </div>
-
-            {/* Estado */}
-            {status.msg && (
-              <p className={`text-sm ${status.ok ? "text-green-600" : "text-red-600"}`}>
-                {status.msg}
-              </p>
             )}
           </form>
         </div>
