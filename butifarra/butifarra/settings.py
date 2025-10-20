@@ -81,13 +81,9 @@ WSGI_APPLICATION = 'butifarra.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'defaultdb',
-        'USER': 'avnadmin',
-        'PASSWORD': 'AVNS_XidMtN0hHn28pRDNi29',
-        'HOST': 'butifarra-butifarra69.f.aivencloud.com',
-        'PORT': '18459',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 

@@ -1,6 +1,6 @@
 // src/pages/PsuVoluntariadosPage.jsx
 import { useEffect, useState } from "react";
-import AppLayout from "../components/layout/AppLayout.jsx";
+
 import Modal from "../components/ui/Modal.jsx";
 import InscripcionFormCard from "../components/Inscripcion/InscripcionFormCard.jsx";
 import { listarProyectosActivos } from "../services/psu.js";
@@ -8,8 +8,8 @@ import { listarProyectosActivos } from "../services/psu.js";
 export default function PsuVoluntariadosPage() {
   const [loading, setLoading] = useState(true);
   const [proyectos, setProyectos] = useState([]);
-  const [sel, setSel] = useState(null);
-  const [open, setOpen] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
 
   const cargar = async () => {
     setLoading(true);
@@ -21,22 +21,24 @@ export default function PsuVoluntariadosPage() {
     }
   };
 
-  useEffect(() => { cargar(); }, []);
+  useEffect(() => {
+    cargar();
+  }, []);
 
-  const cuposDisp = (p) =>
-    Math.max((p.cupo_total ?? 0) - (p.inscripciones_confirmadas ?? 0), 0);
+  const cuposDisponibles = (proyecto) =>
+    Math.max((proyecto.total_slots ?? 0) - (proyecto.inscripciones_confirmadas ?? 0), 0);
 
   return (
-    <AppLayout>
-      <section className="rounded-2xl bg-white shadow p-6 mb-6">
-        <h1 className="text-2xl font-semibold mb-1">PSU y Voluntariados</h1>
+    <div className="space-y-6">
+      <section className="mb-6 rounded-2xl bg-white p-6 shadow">
+        <h1 className="mb-1 text-2xl font-semibold">PSU y Voluntariados</h1>
         <p className="text-gray-600">
           Gestiona programas de servicio social y voluntariados. Inscríbete en los proyectos activos.
         </p>
       </section>
 
-      <section className="rounded-2xl border bg-white overflow-hidden">
-        <div className="px-5 py-4 border-b">
+      <section className="overflow-hidden rounded-2xl border bg-white">
+        <div className="border-b px-5 py-4">
           <h2 className="font-medium">Proyectos activos</h2>
           <p className="text-sm text-gray-500">
             {loading ? "Cargando…" : `${proyectos.length} proyectos registrados`}
@@ -58,63 +60,81 @@ export default function PsuVoluntariadosPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td className="px-5 py-6 text-gray-500" colSpan={6}>Cargando…</td>
+                  <td className="px-5 py-6 text-center text-gray-500" colSpan={6}>
+                    Cargando…
+                  </td>
                 </tr>
               )}
+
               {!loading && proyectos.length === 0 && (
                 <tr>
-                  <td className="px-5 py-6 text-gray-500" colSpan={6}>No hay proyectos activos.</td>
+                  <td className="px-5 py-6 text-center text-gray-500" colSpan={6}>
+                    No hay proyectos activos.
+                  </td>
                 </tr>
               )}
-              {!loading && proyectos.map((p) => {
-                const disp = cuposDisp(p);
-                const sinCupo = disp <= 0;
-                const inscrito = p.yaInscrito === true;
 
-                return (
-                  <tr key={p.id} className="border-t">
-                    <td className="px-5 py-4">
-                      <div className="font-medium">{p.nombre}</div>
-                      <div className="text-gray-500">{p.area ?? p.subtipo ?? ""}</div>
-                    </td>
-                    <td className="px-5 py-4">{p.tipo ?? "Voluntariado"}</td>
-                    <td className="px-5 py-4">{disp}/{p.cupo_total ?? "-"}</td>
-                    <td className="px-5 py-4">
-                      {(p.inicio && p.fin) ? `${p.inicio} a ${p.fin}` : "—"}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="px-2 py-1 rounded-full text-xs border bg-emerald-50 text-emerald-700 border-emerald-200">
-                        Inscripción
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <button
-                        disabled={sinCupo || inscrito}
-                        onClick={() => { setSel({ id: p.id, nombre: p.nombre, cupos_disponibles: disp }); setOpen(true); }}
-                        className={`px-3 py-2 rounded-xl text-white text-sm ${
-                          sinCupo || inscrito ? "bg-indigo-300" : "bg-indigo-600 hover:bg-indigo-700"
-                        }`}
-                      >
-                        {inscrito ? "Inscrito" : "Inscribirme"}
-                      </button>
-                      {sinCupo && <div className="text-xs text-rose-600 mt-1">Sin cupo</div>}
-                    </td>
-                  </tr>
-                );
-              })}
+              {!loading &&
+                proyectos.map((proyecto) => {
+                  const disponibles = cuposDisponibles(proyecto);
+                  const sinCupo = disponibles <= 0;
+                  const inscrito = proyecto.yaInscrito === true;
+
+                  return (
+                    <tr key={proyecto.id} className="border-t">
+                      <td className="px-5 py-4">
+                        <div className="font-medium">{proyecto.nombre}</div>
+                        <div className="text-gray-500">{proyecto.area ?? proyecto.subtipo ?? ""}</div>
+                      </td>
+                      <td className="px-5 py-4">{proyecto.tipo ?? "Voluntariado"}</td>
+                      <td className="px-5 py-4">{disponibles}/{proyecto.total_slots ?? "-"}</td>
+                      <td className="px-5 py-4">
+                        {proyecto.inicio && proyecto.fin ? `${proyecto.inicio} a ${proyecto.fin}` : "—"}
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
+                          Inscripción
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <button
+                          type="button"
+                          disabled={sinCupo || inscrito}
+                          onClick={() => {
+                            setSeleccionado({ id: proyecto.id, nombre: proyecto.nombre, cupos_disponibles: disponibles });
+                            setModalAbierto(true);
+                          }}
+                          className={`rounded-xl px-3 py-2 text-sm text-white ${
+                            sinCupo || inscrito ? "bg-indigo-300" : "bg-indigo-600 hover:bg-indigo-700"
+                          }`}
+                        >
+                          {inscrito ? "Inscrito" : "Inscribirme"}
+                        </button>
+                        {sinCupo && <div className="mt-1 text-xs text-rose-600">Sin cupo</div>}
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </div>
       </section>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
-        {sel && (
+      <Modal
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        title="Formulario de inscripción"
+      >
+        {seleccionado && (
           <InscripcionFormCard
-            proyecto={sel}
-            onSuccess={() => { setOpen(false); cargar(); }}
+            proyecto={seleccionado}
+            onSuccess={() => {
+              setModalAbierto(false);
+              cargar();
+            }}
           />
         )}
       </Modal>
-    </AppLayout>
+    </div>
   );
 }
