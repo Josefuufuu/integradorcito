@@ -1,5 +1,5 @@
 // src/components/Torneos/FixtureView.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, X, Edit3, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const MatchCard = ({ match, onSaveResult }) => {
@@ -73,13 +73,21 @@ const MatchCard = ({ match, onSaveResult }) => {
 };
 
 const FixtureView = ({ tournament, onSaveResult }) => {
-  if (!tournament || !tournament.matches || tournament.matches.length === 0) {
-    return <div className="p-8 text-center text-gray-500">Este torneo aún no tiene partidos programados en el fixture.</div>;
-  }
+  const rounds = (tournament?.matches ?? []).reduce((acc, match) => {
+    (acc[match.round] = acc[match.round] || []).push(match);
+    return acc;
+  }, {});
 
-  const rounds = tournament.matches.reduce((acc, match) => { (acc[match.round] = acc[match.round] || []).push(match); return acc; }, {});
   const roundNames = Object.keys(rounds);
   const [activeRoundIndex, setActiveRoundIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveRoundIndex(0);
+  }, [tournament?.id]);
+
+  if (!tournament || roundNames.length === 0) {
+    return <div className="p-8 text-center text-gray-500">Este torneo aún no tiene partidos programados en el fixture.</div>;
+  }
   
   const goToNextRound = () => setActiveRoundIndex(i => Math.min(i + 1, roundNames.length - 1));
   const goToPrevRound = () => setActiveRoundIndex(i => Math.max(i - 1, 0));
