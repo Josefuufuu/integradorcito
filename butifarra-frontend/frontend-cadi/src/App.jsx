@@ -77,8 +77,7 @@ export default function App() {
         <Route path="/calendario" element={(<ActivitiesCalendar />)} />
         <Route path="/mi-calendario" element={<PersonalCalendar />} />
 
-        {/* Tu ruta temporal de desarrollo */}
-        <Route path="/dev-torneos" element={<AdminTorneosPage />} />
+        <Route path="/admin/torneos" element={<AdminTorneosPage />} />
         
         <Route path="/admin/reports" element={<AdminReport />} />
         <Route path="/admin/home" element={(<AdminHomePage />)} />
