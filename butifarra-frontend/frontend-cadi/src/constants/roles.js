@@ -1,0 +1,7 @@
+export const Roles = {
+  ADMIN: "ADMIN",
+  COORDINATOR: "COORDINATOR",
+  BENEFICIARY: "BENEFICIARIO",
+};
+
+export const ADMIN_ROLES = [Roles.ADMIN, Roles.COORDINATOR];

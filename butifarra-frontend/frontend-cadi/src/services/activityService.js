@@ -1,14 +1,22 @@
 // src/services/activityService.js
-import axios from "axios";
-import userActivitiesMock from "../mocks/userActivitiesMock";
+import apiFetch from "./api.js";
 
-// Obtiene las actividades del usuario autenticado. Si falla, devuelve datos mock.
+// Obtiene las actividades del usuario autenticado.
 export async function getUserActivities() {
-  try {
-    const response = await axios.get("/api/user/activities");
-    return response.data;
-  } catch (error) {
-    console.error("No se pudieron obtener las actividades del usuario:", error);
-    return userActivitiesMock;
+  const response = await apiFetch("/api/user/activities/");
+
+  if (!response.ok) {
+    throw new Error("No se pudieron obtener las actividades del usuario");
   }
+
+  const data = await response.json();
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data.map((activity) => ({
+    ...activity,
+    enrollment_id: activity.enrollment_id ?? null,
+    enrollment_status: activity.enrollment_status ?? null,
+  }));
 }
