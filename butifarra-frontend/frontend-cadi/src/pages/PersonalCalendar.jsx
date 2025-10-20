@@ -6,7 +6,7 @@ import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Sidebar } from "../components/Sidebar/Sidebar";
 import { TopBar } from "../components/Dashboard/TopBar";
-import useUserActivities from "../hooks/useUserActivities";
+import useUserActivities from "../hooks/useUserActivities.js";
 import { Search, Tag, MapPin, Clock, Users, X, Star } from "lucide-react";
 
 // Configuración del localizador para fechas en español

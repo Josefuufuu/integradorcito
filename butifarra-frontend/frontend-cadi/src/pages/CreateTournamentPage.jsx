@@ -1,6 +1,5 @@
 import { useReducer, useState } from "react";
 import AppLayout from "../components/layout/AppLayout.jsx";
-import { apiFetch } from "../services/api";
 
 const initialState = {
   name: "",
@@ -50,7 +49,7 @@ export default function CreateTournamentPage() {
     return e;
   };
 
-  const handleSubmit = async (ev) => {
+  const handleSubmit = (ev) => {
     ev.preventDefault();
     const e = validate();
     setErrors(e);
@@ -58,39 +57,12 @@ export default function CreateTournamentPage() {
 
     setStatus({ loading: true, ok: false, msg: "" });
 
-    const payload = {
-      name: form.name.trim(),
-      sport: form.sport,
-      format: form.format,
-      max_teams: Number(form.maxTeams),
-      current_teams: 0,
-      start_date: form.startDate,
-      end_date: form.endDate,
-      description: form.description,
-      phase: "Planificación",
-    };
-
-    try {
-      const response = await apiFetch("/api/torneos/", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        if (response.status === 401) {
-          throw new Error("Tu sesión no tiene permisos para crear torneos. Inicia sesión con un usuario autorizado.");
-        }
-        const message = data?.detail || data?.error || "Error al crear el torneo.";
-        throw new Error(message);
-      }
-
-      await response.json();
-      setStatus({ loading: false, ok: true, msg: "Torneo creado correctamente." });
+    // Solo frontend: imprime y muestra mensaje local.
+    setTimeout(() => {
+      console.log("Torneo a crear (solo frontend):", form);
+      setStatus({ loading: false, ok: true, msg: "Torneo creado (mock). Puedes conectar al backend luego." });
       dispatch({ type: "reset" });
-    } catch (err) {
-      setStatus({ loading: false, ok: false, msg: err.message || "No se pudo crear el torneo." });
-    }
+    }, 500);
   };
 
   return (
@@ -317,6 +289,24 @@ export default function CreateTournamentPage() {
               <div className={`toast ${status.ok ? "ok" : "error"}`}>
                 {status.msg}
               </div>
+            )}
+          </form>
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
+                disabled={status.loading}
+              >
+                {status.loading ? "Guardando…" : "Crear torneo"}
+              </button>
+            </div>
+
+            {/* Estado */}
+            {status.msg && (
+              <p className={`text-sm ${status.ok ? "text-green-600" : "text-red-600"}`}>
+                {status.msg}
+              </p>
             )}
           </form>
         </div>

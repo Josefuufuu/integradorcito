@@ -1,143 +1,96 @@
+// src/App.jsx
+
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Suspense } from "react";
 import PropTypes from "prop-types";
-
 import { useAuth } from "./context/AuthContext.jsx";
-import { ADMIN_ROLES, Roles } from "./constants/roles.js";
 
-import LoginPage from "./pages/LoginPage.jsx";
-import SignupPage from "./pages/SignupPage.jsx";
+// --- IMPORTACIONES COMBINADAS ---
+// Conservamos las páginas de tus compañeros y las tuyas.
 import HomeBeneficiary from "./pages/HomeBeneficiary.jsx";
+import AdminHomePage from "./pages/AdminHomePage.jsx";
+import CreateActivity from "./pages/CreateActivity.jsx";
+import TestRatingPage from "./pages/TestRatingPage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import AdminFormInscripcion from "./pages/AdminFormInscripcion";
+import AdminReport from "./pages/AdminReport.jsx"
+import NotificationsPage from "./pages/NotificationsPage.jsx";
 import GestionCadiPage from "./pages/GestionCadiPage.jsx";
 import TorneosPage from "./pages/TorneosPage.jsx";
 import PsuVoluntariadosPage from "./pages/PsuVoluntariadosPage.jsx";
 import CitasPsicologicasPage from "./pages/CitasPsicologicasPage.jsx";
-import AdminHomePage from "./pages/AdminHomePage.jsx";
-import CreateActivity from "./pages/CreateActivity.jsx";
-import AdminTorneosPage from "./pages/AdminTorneosPage.jsx";
-import NotificationsPage from "./pages/NotificationsPage.jsx";
 import ReportesPage from "./pages/ReportesPage.jsx";
-import AdminFormInscripcion from "./pages/AdminFormInscripcion.jsx";
 
-import AppLayout from "./components/layout/AppLayout.jsx";
+import AdminTorneosPage from "./pages/AdminTorneosPage.jsx";
 
-function LoadingScreen() {
-  return (
-    <div className="flex h-screen items-center justify-center text-gray-600">
-      Cargando sesión...
-    </div>
-  );
-}
+import ActivitiesCalendar from "./pages/ActivitiesCalendar.jsx";
+import PersonalCalendar from "./pages/PersonalCalendar.jsx";
 
 function NotFound() {
   return (
-    <div className="flex h-full flex-1 items-center justify-center p-12 text-center text-gray-600">
-      <div>
-        <h1 className="text-3xl font-semibold text-gray-800">404</h1>
-        <p className="mt-2">La ruta solicitada no existe.</p>
-      </div>
+    <div style={{ padding: 24 }}>
+      <h1>404</h1>
+      <p>Ruta no encontrada.</p>
     </div>
   );
 }
 
-function ProtectedLayout({ allowedRoles }) {
+export function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <LoadingScreen />;
+    return (
+      <div className="flex h-screen items-center justify-center text-gray-600">
+        Cargando sesión...
+      </div>
+    );
   }
 
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const fallback = user.role === Roles.BENEFICIARY ? "/inicio" : "/admin/inicio";
-    return <Navigate to={fallback} replace />;
-  }
-
-  return (
-    <AppLayout />
-  );
-}
-
-ProtectedLayout.propTypes = {
-  allowedRoles: PropTypes.arrayOf(PropTypes.string),
-};
-
-function PublicOnlyRoute({ children }) {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  if (user) {
-    return <Navigate to={user.role === Roles.BENEFICIARY ? "/inicio" : "/admin/inicio"} replace />;
-  }
-
   return children;
 }
 
-PublicOnlyRoute.propTypes = {
+PrivateRoute.propTypes = {
   children: PropTypes.node,
 };
-
-function ProtectedRoutes() {
-  return (
-    <Routes>
-      <Route element={<ProtectedLayout />}>
-        <Route path="/inicio" element={<HomeBeneficiary />} />
-        <Route path="/actividades" element={<GestionCadiPage />} />
-        <Route path="/torneos" element={<TorneosPage />} />
-        <Route path="/psu" element={<PsuVoluntariadosPage />} />
-        <Route path="/citas" element={<CitasPsicologicasPage />} />
-      </Route>
-
-      <Route element={<ProtectedLayout allowedRoles={ADMIN_ROLES} />}>
-        <Route path="/admin" element={<Navigate to="/admin/inicio" replace />} />
-        <Route path="/admin/inicio" element={<AdminHomePage />} />
-        <Route path="/admin/actividades" element={<CreateActivity />} />
-        <Route path="/admin/torneos" element={<AdminTorneosPage />} />
-        <Route path="/admin/notificaciones" element={<NotificationsPage />} />
-        <Route path="/admin/reportes" element={<ReportesPage />} />
-        <Route path="/admin/usuarios" element={<AdminFormInscripcion />} />
-      </Route>
-
-      <Route element={<ProtectedLayout />}>
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
-  );
-}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/login"
-          element={(
-            <PublicOnlyRoute>
-              <LoginPage />
-            </PublicOnlyRoute>
-          )}
-        />
-        <Route
-          path="/registro"
-          element={(
-            <PublicOnlyRoute>
-              <SignupPage />
-            </PublicOnlyRoute>
-          )}
-        />
-        <Route path="/" element={<Navigate to="/inicio" replace />} />
-      </Routes>
 
-      <Suspense fallback={<LoadingScreen />}>
-        <ProtectedRoutes />
-      </Suspense>
+        {/* Rutas de beneficiario */}
+        <Route path="/" element={<Navigate to="/inicio" replace />} />
+        <Route path="/inicio" element={(<HomeBeneficiary userName="Pablo" />)} />
+        <Route path="/HomeBeneficiary" element={(<HomeBeneficiary userName="Pablo" />)} />
+        <Route path="/gestion-cadi" element={(<GestionCadiPage />)} />
+        <Route path="/torneos" element={(<TorneosPage />)} />
+        <Route path="/psu" element={(<PsuVoluntariadosPage />)} />
+        <Route path="/citas" element={(<CitasPsicologicasPage />)} />
+        <Route path="/reportes" element={(<ReportesPage />)} />
+        
+
+        <Route path="/calendario" element={(<ActivitiesCalendar />)} />
+        <Route path="/mi-calendario" element={<PersonalCalendar />} />
+
+        {/* Tu ruta temporal de desarrollo */}
+        <Route path="/dev-torneos" element={<AdminTorneosPage />} />
+        
+        <Route path="/admin/reports" element={<AdminReport />} />
+        <Route path="/admin/home" element={(<AdminHomePage />)} />
+        <Route path="/test-rating" element={(<TestRatingPage />)} />
+        <Route path="/notificaciones" element={(<NotificationsPage />)} />
+        <Route path="/actividades/crear" element={(<CreateActivity />)} />
+        <Route path="/admin/form-inscripcion" element={(<AdminFormInscripcion />)} />
+
+
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </BrowserRouter>
   );
 }

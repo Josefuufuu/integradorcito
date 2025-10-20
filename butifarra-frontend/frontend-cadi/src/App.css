@@ -560,3 +560,19 @@ body {
   white-space: pre-wrap; /* Respeta los saltos de línea */
   color: var(--color-text-secondary);
 }
+
+  /* Contador de deshacer para torneos */
+
+  @keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Crea una clase de utilidad para aplicar esta animación */
+.animate-shrink {
+  animation: shrink 5s linear forwards;
+}

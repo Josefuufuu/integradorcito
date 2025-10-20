@@ -1,21 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { FiX } from 'react-icons/fi';
 import './Modal.css';
 
-export default function Modal({ isOpen, open, onClose, title, children }) {
-  const visible = typeof isOpen === 'boolean' ? isOpen : open;
-
-  if (!visible) {
-    return null;
+export default function Modal({ isOpen, onClose, title, children }) {
+  if (!isOpen) {
+    return null; // Si no está abierto, no renderices nada
   }
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
-      <div className="modal-content" onClick={(event) => event.stopPropagation()}>
+    // El fondo oscuro semitransparente
+    <div className="modal-overlay" onClick={onClose}>
+      {/* El contenedor blanco de la ventana */}
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <header className="modal-header">
           <h2>{title}</h2>
-          <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Cerrar">
+          <button className="modal-close-btn" onClick={onClose}>
             <FiX />
           </button>
         </header>
@@ -26,18 +25,3 @@ export default function Modal({ isOpen, open, onClose, title, children }) {
     </div>
   );
 }
-
-Modal.propTypes = {
-  isOpen: PropTypes.bool,
-  open: PropTypes.bool,
-  onClose: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  children: PropTypes.node,
-};
-
-Modal.defaultProps = {
-  isOpen: undefined,
-  open: undefined,
-  title: undefined,
-  children: null,
-};

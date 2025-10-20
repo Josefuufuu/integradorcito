@@ -15,8 +15,5 @@ export default defineConfig({
     // y corra en el puerto correcto.
     host: true,    
     port: 5174,
-    proxy: {
-      '/api': 'http://127.0.0.1:8000',
-    },
   },
 });

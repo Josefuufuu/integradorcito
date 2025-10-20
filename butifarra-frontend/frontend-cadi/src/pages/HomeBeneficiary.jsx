@@ -1,169 +1,123 @@
 
 // src/pages/HomeBeneficiary.jsx
-import { useEffect, useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 
+import AppLayout from "../components/layout/AppLayout.jsx";
 import Button from "../components/ui/Button.jsx";
 import StatCard from "../components/ui/StatCard.jsx";
 import ActivityCard from "../components/ActivityCard.jsx";
 import SectionHeader from "../components/ui/SectionHeader.jsx";
-import { useAuth } from "../context/AuthContext.jsx";
-import { fetchBeneficiaryHome } from "../services/dashboard.js";
 
-const DEFAULT_STATS = {
-  upcoming: 0,
-  enrollments: 0,
-  appointments: 0,
-  favorites: 0,
-};
+// Datos mock para arrancar (luego los reemplazas por los del backend)
+const defaultStats = [
+  { id: "upcoming",     title: "Próximas actividades", value: 3, cta: "Ver calendario",    tone: "indigo" },
+  { id: "enrollments",  title: "Inscripciones activas", value: 1, cta: "Ver inscripciones", tone: "orange" },
+  { id: "appointments", title: "Citas próximas",        value: 2, cta: "Gestionar citas",   tone: "green" },
+  { id: "favorites",    title: "Favoritos",             value: 5, cta: "Ver favoritos",     tone: "purple" },
+];
 
-export default function HomeBeneficiary() {
+const defaultHighlights = [
+  { id: 1, title: "Yoga matutino",   tags: ["Bienestar", "Grupal"], place: "Casa de muñecas", when: "Lun–Vie, 7:00 A.M.", rating: 4.8, quota: "12 / 15" },
+  { id: 2, title: "Taller de pintura", tags: ["Arte", "Grupal"],   place: "Salón 203 I",      when: "Lun–Mar, 11:00 A.M.", rating: 4.0, quota: "24 / 30" },
+  { id: 3, title: "Música & Ritmo",  tags: ["Música", "Grupal"],   place: "Sala Audiovisual", when: "Jue, 5:00 P.M.",      rating: 4.6, quota: "18 / 20" },
+];
+
+export default function HomeBeneficiary({
+  userName = "Pablo",
+  stats = defaultStats,
+  highlights = defaultHighlights,
+  onViewCalendar,
+  onViewEnrollments,
+  onManageAppointments,
+  onViewFavorites,
+  onViewAllActivities,
+  onEnroll,
+}) {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState(DEFAULT_STATS);
-  const [activities, setActivities] = useState([]);
-  const [sessions, setSessions] = useState([]);
-
-  useEffect(() => {
-    let active = true;
-
-    const load = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchBeneficiaryHome();
-        if (!active) return;
-        setStats({ ...DEFAULT_STATS, ...data.stats });
-        setActivities(data.highlights ?? []);
-        setSessions(data.sessions ?? []);
-      } catch (err) {
-        console.error("No se pudo cargar el panel", err);
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    };
-
-    load();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const statCards = useMemo(() => [
-    {
-      id: "upcoming",
-      title: "Próximas actividades",
-      value: stats.upcoming,
-      cta: "Ver calendario",
-      tone: "indigo",
-      onClick: () => navigate("/actividades"),
-    },
-    {
-      id: "enrollments",
-      title: "Inscripciones activas",
-      value: stats.enrollments,
-      cta: "Mis inscripciones",
-      tone: "orange",
-      onClick: () => navigate("/actividades"),
-    },
-    {
-      id: "appointments",
-      title: "Citas disponibles",
-      value: stats.appointments,
-      cta: "Gestionar citas",
-      tone: "green",
-      onClick: () => navigate("/citas"),
-    },
-    {
-      id: "favorites",
-      title: "Favoritos",
-      value: stats.favorites,
-      cta: "Explorar",
-      tone: "purple",
-      onClick: () => navigate("/actividades"),
-    },
-  ], [stats, navigate]);
+  
+  const kpiHandlers = {
+    upcoming: onViewCalendar || (() => navigate("/mi-calendario")),
+    enrollments: onViewEnrollments,
+    appointments: onManageAppointments,
+    favorites: onViewFavorites,
+  };
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-2xl bg-indigo-600 p-6 text-white shadow-md">
-        <p className="text-xs uppercase tracking-wide opacity-80">Bienestar universitario</p>
-        <h1 className="mt-2 text-2xl font-semibold">{user?.first_name ? `¡Hola, ${user.first_name}!` : "Bienvenido"}</h1>
-        <p className="mt-2 max-w-2xl text-sm opacity-90">
-          Explora actividades del Centro Artístico y Deportivo (CADI), inscríbete a eventos y gestiona tu bienestar integral.
+    <AppLayout>
+      {/* Hero */}
+      <section className="rounded-2xl p-6 text-white bg-indigo-600 mb-6">
+        <h1 className="text-2xl font-semibold mb-1">¡Hola, {userName}!</h1>
+        <p className="opacity-90">
+          Explora actividades del Centro Artístico y Deportivo (CADI), inscríbete a eventos y gestiona tu bienestar.
         </p>
         <div className="mt-4">
-          <Button variant="primary" onClick={() => navigate("/actividades")}>Ver actividades disponibles</Button>
+          <Button onClick={() => navigate("/mi-calendario")}>Ver calendario</Button>
         </div>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((card) => (
+      {/* KPIs */}
+      <div className="grid md:grid-cols-4 sm:grid-cols-2 gap-4 mb-6">
+        {stats.map((s) => (
           <StatCard
-            key={card.id}
-            title={card.title}
-            value={card.value}
-            cta={card.cta}
-            tone={card.tone}
-            onClick={card.onClick}
+            key={s.id}
+            title={s.title}
+            value={s.value}
+            cta={s.cta}
+            tone={s.tone}             // asegúrate que StatCard soporte este prop
+            onClick={() => kpiHandlers[s.id]?.()}
           />
         ))}
       </div>
 
-      <SectionHeader
-        title="Actividades destacadas"
-        subtitle="Programación de la semana"
-        onViewAll={() => navigate("/actividades")}
-      />
+      {/* Encabezado de sección */}
+      <SectionHeader title="Actividades destacadas" onViewAll={onViewAllActivities} />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {!loading && activities.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-            Aún no hay actividades programadas. Vuelve pronto.
-          </div>
-        )}
-
-        {activities.map((activity) => (
+      {/* Cards de actividades */}
+      <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
+        {highlights.map((a) => (
           <ActivityCard
-            key={activity.id}
-            title={activity.title}
-            tags={[activity.category]}
-            place={activity.location}
-            when={format(new Date(activity.start), "dd MMM, HH:mm")}
-            rating={activity.available_seats > 0 ? "Cupos disponibles" : "Sin cupos"}
-            quota={`${activity.available_seats}/${activity.capacity}`}
-            onEnroll={() => navigate("/actividades", { state: { focus: activity.id } })}
+            key={a.id}
+            title={a.title}
+            tags={a.tags}            // Tag.jsx se usa dentro de ActivityCard
+            place={a.place}
+            when={a.when}
+            rating={a.rating}
+            quota={a.quota}
+            onEnroll={() => onEnroll?.(a)}
           />
         ))}
       </div>
-
-      <SectionHeader
-        title="Acompañamiento psicológico"
-        subtitle="Próximos espacios disponibles"
-        onViewAll={() => navigate("/citas")}
-      />
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {sessions.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-            No hay citas disponibles en este momento.
-          </div>
-        )}
-        {sessions.map((session) => (
-          <div key={session.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm font-semibold text-violet-600">{session.counselor}</p>
-            <h3 className="mt-2 text-lg font-semibold text-slate-800">{session.title}</h3>
-            <p className="mt-2 text-sm text-slate-500">
-              {format(new Date(session.start), "eeee d 'de' MMMM - HH:mm")}
-            </p>
-            <p className="mt-2 text-sm text-slate-500">{session.available_slots} cupos disponibles</p>
-            <Button variant="primary" className="mt-4" onClick={() => navigate("/citas")}>Agendar</Button>
-          </div>
-        ))}
-      </div>
-    </div>
+    </AppLayout>
   );
 }
+
+HomeBeneficiary.propTypes = {
+  userName: PropTypes.string,
+  stats: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      cta: PropTypes.string,
+      tone: PropTypes.string, // ajusta si usas un enum en tu StatCard
+    })
+  ),
+  highlights: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      title: PropTypes.string.isRequired,
+      tags: PropTypes.arrayOf(PropTypes.string),
+      place: PropTypes.string,
+      when: PropTypes.string,
+      rating: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      quota: PropTypes.string,
+    })
+  ),
+  onViewCalendar: PropTypes.func,
+  onViewEnrollments: PropTypes.func,
+  onManageAppointments: PropTypes.func,
+  onViewFavorites: PropTypes.func,
+  onViewAllActivities: PropTypes.func,
+  onEnroll: PropTypes.func,
+};

@@ -1,6 +1,6 @@
 // src/hooks/useUserActivities.js
 import { useState, useEffect } from "react";
-import { getUserActivities } from "../services/activityService";
+import { getUserActivities } from "../services/activityService.js";
 
 export default function useUserActivities() {
   const [activities, setActivities] = useState([]);

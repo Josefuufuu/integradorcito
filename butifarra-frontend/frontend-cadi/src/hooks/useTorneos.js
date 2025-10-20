@@ -1,33 +1,7 @@
 // src/hooks/useTorneos.js
 import { useState, useEffect, useCallback } from 'react';
-import { apiFetch } from '../services/api';
 
-const API_URL = '/api/torneos/';
-
-const normalizeTournament = (payload) => ({
-  id: payload.id,
-  name: payload.name,
-  sport: payload.sport,
-  format: payload.format,
-  maxTeams: payload.max_teams,
-  currentTeams: payload.current_teams,
-  startDate: payload.start_date,
-  endDate: payload.end_date,
-  description: payload.description ?? '',
-  phase: payload.phase,
-});
-
-const toApiPayload = (data) => ({
-  name: data.name,
-  sport: data.sport,
-  format: data.format,
-  max_teams: Number(data.maxTeams ?? data.max_teams ?? 0),
-  current_teams: Number(data.currentTeams ?? data.current_teams ?? 0),
-  start_date: data.startDate ?? data.start_date,
-  end_date: data.endDate ?? data.end_date,
-  description: data.description ?? '',
-  phase: data.phase ?? 'Planificación',
-});
+const API_URL = 'https://tu-api-de-ejemplo.com/api/v1/tournaments'; 
 
 export const useTorneos = () => {
   const [torneos, setTorneos] = useState([]);
@@ -36,18 +10,15 @@ export const useTorneos = () => {
 
   const fetchTorneos = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await apiFetch(API_URL);
-      if (!response.ok) {
-        throw new Error('Error al obtener torneos');
-      }
-      const data = await response.json();
-      setTorneos(Array.isArray(data) ? data.map(normalizeTournament) : []);
-      setError(null);
+
+      setTimeout(() => setLoading(false), 500);
+
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+
     }
   }, []);
 
@@ -55,47 +26,37 @@ export const useTorneos = () => {
     fetchTorneos();
   }, [fetchTorneos]);
 
-  const createTorneo = useCallback(async (torneoData) => {
-    const response = await apiFetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(toApiPayload(torneoData)),
-    });
+  const createTorneo = async (torneoData) => {
+    console.log("Enviando datos para crear torneo al backend:", torneoData);
 
-    if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
-      const detail = payload?.detail || payload?.error;
-      throw new Error(detail || 'Error al crear torneo');
-    }
+    const newTournament = { ...torneoData, id: Date.now(), phase: 'Inscripciones', currentTeams: 0, matches: [] };
+    setTorneos(prev => [newTournament, ...prev]);
+  };
 
-    const newTorneo = await response.json();
-    setTorneos((prev) => [normalizeTournament(newTorneo), ...prev]);
-  }, []);
+  const deleteTorneo = async (id) => {
+    console.log("Enviando solicitud para eliminar torneo con ID:", id);
+    const originalTorneos = [...torneos];
+    setTorneos(prev => prev.filter(torneo => torneo.id !== id));
+    
+  };
 
-  const deleteTorneo = useCallback(async (id) => {
-    const response = await apiFetch(`${API_URL}${id}/`, {
-      method: 'DELETE',
-    });
+  const updateTorneo = async (updatedData) => {
+    console.log("Enviando datos para actualizar torneo:", updatedData);
 
-    if (!response.ok) {
-      throw new Error('Error al eliminar torneo');
-    }
+    setTorneos(prev => prev.map(t => t.id === updatedData.id ? updatedData : t));
+  };
 
-    setTorneos((prev) => prev.filter((torneo) => torneo.id !== id));
-  }, []);
+  const registerResult = (tournamentId, matchId, scores) => {
+    console.log(`Registrando resultado para el partido ${matchId}:`, scores);
 
-  const updateTorneo = useCallback(async (updatedData) => {
-    const response = await apiFetch(`${API_URL}${updatedData.id}/`, {
-      method: 'PATCH',
-      body: JSON.stringify(toApiPayload(updatedData)),
-    });
+    setTorneos(prev => prev.map(torneo => {
+      if (torneo.id === tournamentId) {
+        const updatedMatches = torneo.matches.map(match => (match.id === matchId ? { ...match, ...scores, status: 'played' } : match));
+        return { ...torneo, matches: updatedMatches };
+      }
+      return torneo;
+    }));
+  };
 
-    if (!response.ok) {
-      throw new Error('Error al actualizar torneo');
-    }
-
-    const torneoActualizado = await response.json();
-    setTorneos((prev) => prev.map((t) => (t.id === torneoActualizado.id ? normalizeTournament(torneoActualizado) : t)));
-  }, []);
-
-  return { torneos, loading, error, createTorneo, deleteTorneo, updateTorneo, refetch: fetchTorneos };
+  return { torneos, loading, error, createTorneo, deleteTorneo, updateTorneo, registerResult };
 };

@@ -1,44 +1,45 @@
-// src/mocks/userActivities.js
-const userActivitiesMock = [
+// src/mocks/userActivitiesMock.js
+// Este archivo contiene actividades de ejemplo para el calendario del beneficiario.
+// Al conectar el backend, estas actividades serán reemplazadas por datos reales.
+
+export default [
   {
     id: 1,
-    title: "Entrenamiento de baloncesto",
-    start: new Date(2025, 9, 21, 14, 0), // 21 de octubre de 2025, 14:00
-    end: new Date(2025, 9, 21, 16, 0),   // 21 de octubre de 2025, 16:00
-    location: "Cancha A",
-    description: "Sesión de entrenamiento regular.",
+    title: "Partido de fútbol",
+    start: new Date(2025, 9, 24, 15, 0), // 24 de octubre de 2025, 15:00
+    end: new Date(2025, 9, 24, 17, 0),   // 24 de octubre de 2025, 17:00
+    location: "Cancha principal",
+    description: "Partido amistoso de fútbol con la selección universitaria.",
     category: "Deporte",
-    instructor: "Juan Pérez",
-    availableSpots: 20,
-    registerUrl: "/registro/baloncesto",
+    instructor: "Entrenador Gómez",
+    availableSpots: 0,
+    registerUrl: "/registro/futbol",
     isFavorite: false,
   },
   {
     id: 2,
-    title: "Clase de pintura",
-    start: new Date(2025, 9, 22, 10, 0), // 22 de octubre de 2025, 10:00
-    end: new Date(2025, 9, 22, 12, 0),   // 22 de octubre de 2025, 12:00
-    location: "Sala de arte",
-    description: "Aprende técnicas básicas de pintura.",
-    category: "Arte",
-    instructor: "María Gómez",
-    availableSpots: 10,
-    registerUrl: "/registro/pintura",
+    title: "Festival de cultura",
+    start: new Date(2025, 9, 25, 10, 0), // 25 de octubre de 2025, 10:00
+    end: new Date(2025, 9, 25, 14, 0),   // 25 de octubre de 2025, 14:00
+    location: "Plaza central",
+    description: "Presentaciones artísticas y gastronomía de distintas regiones.",
+    category: "Cultura",
+    instructor: "Equipo Cultural",
+    availableSpots: 100,
+    registerUrl: "/registro/festival",
     isFavorite: false,
   },
   {
     id: 3,
-    title: "Sesión de mindfulness",
-    start: new Date(2025, 9, 23, 9, 0), // 23 de octubre de 2025, 09:00
-    end: new Date(2025, 9, 23, 10, 30), // 23 de octubre de 2025, 10:30
-    location: "Sala Bienestar",
-    description: "Ejercicios de respiración y relajación.",
-    category: "Bienestar",
-    instructor: "Carlos Rodríguez",
-    availableSpots: 15,
-    registerUrl: "/registro/mindfulness",
+    title: "Conferencia de tecnología",
+    start: new Date(2025, 9, 26, 9, 0), // 26 de octubre de 2025, 09:00
+    end: new Date(2025, 9, 26, 11, 30), // 26 de octubre de 2025, 11:30
+    location: "Auditorio A",
+    description: "Últimas tendencias en desarrollo web y aplicaciones móviles.",
+    category: "Evento",
+    instructor: "Ing. Pérez",
+    availableSpots: 50,
+    registerUrl: "/registro/tecnologia",
     isFavorite: false,
   },
 ];
-
-export default userActivitiesMock;

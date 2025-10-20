@@ -1,9 +1,9 @@
-import { Outlet } from "react-router-dom";
+import React from "react";
+import PropTypes from "prop-types";
+import Header from "./Header";
+import { Sidebar } from "../Sidebar/Sidebar";
 
-import Header from "./Header.jsx";
-import Sidebar from "../sidebar/Sidebar.jsx";
-
-export default function AppLayout() {
+export default function AppLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-slate-100 text-slate-900">
       <aside className="hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white lg:block">
@@ -22,9 +22,13 @@ export default function AppLayout() {
         </header>
 
         <main className="flex-1 overflow-y-auto bg-slate-50 p-4 sm:p-6 lg:p-10">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>
   );
 }
+
+AppLayout.propTypes = {
+  children: PropTypes.node,
+};

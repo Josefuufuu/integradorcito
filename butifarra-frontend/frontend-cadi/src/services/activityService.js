@@ -1,22 +1,30 @@
 // src/services/activityService.js
-import apiFetch from "./api.js";
+// src/services/activityService.js
+// Servicio para obtener las actividades del usuario autenticado.
+// Si la solicitud al backend falla, devuelve datos mock.
+import userActivitiesMock from "../mocks/userActivitiesMock.js";
 
-// Obtiene las actividades del usuario autenticado.
-export async function getUserActivities() {
-  const response = await apiFetch("/api/user/activities/");
-
-  if (!response.ok) {
-    throw new Error("No se pudieron obtener las actividades del usuario");
-  }
-
-  const data = await response.json();
-  if (!Array.isArray(data)) {
-    return [];
-  }
-
-  return data.map((activity) => ({
+// Convierte las fechas en instancias de Date por si vienen como strings del backend.
+const normalize = (items = []) =>
+  items.map((activity) => ({
     ...activity,
-    enrollment_id: activity.enrollment_id ?? null,
-    enrollment_status: activity.enrollment_status ?? null,
+    start: new Date(activity.start),
+    end: new Date(activity.end),
   }));
+
+export async function getUserActivities() {
+  try {
+    const response = await fetch("/api/user/activities", {
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    return normalize(data);
+  } catch (error) {
+    console.warn(
+      "No se pudieron obtener las actividades del usuario, usando mock:",
+      error?.message
+    );
+    return normalize(userActivitiesMock);
+  }
 }

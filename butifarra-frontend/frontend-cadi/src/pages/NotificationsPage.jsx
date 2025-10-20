@@ -1,175 +1,143 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import CampaignsView from './CampaignsView';
+import React, { useState, useRef } from 'react';
+import AppLayout from '../components/layout/AppLayout.jsx';
+import CampaignsView from './CampaignsView'; 
 import CreateNotificationView from './CreateNotificationView';
 import Toast from '../components/ui/Toast';
-import Modal from '../components/ui/Modal';
-import { createCampaign, deleteCampaign, listCampaigns, updateCampaign } from '../services/campaigns.js';
+import Modal from '../components/ui/Modal'; // 1. Importamos el Modal
 
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState('Campañas');
   const [campaigns, setCampaigns] = useState([]);
+  
+  // --- LÓGICA DE EDICIÓN ---
   const [editingCampaign, setEditingCampaign] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // --- LÓGICA DEL MODAL ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', body: '' });
+  
+  // --- LÓGICA DE ELIMINACIÓN---
   const [recentlyDeleted, setRecentlyDeleted] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const deleteTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    listCampaigns()
-      .then((data) => setCampaigns(data ?? []))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const formattedCampaigns = useMemo(() => campaigns.map((campaign) => {
-    let schedule = '';
-    if (campaign.scheduledAt) {
-      const date = new Date(campaign.scheduledAt);
-      schedule = Number.isNaN(date.getTime())
-        ? campaign.scheduledAt
-        : date.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
-    }
-
-    return {
-      ...campaign,
-      schedule,
-      metrics: `${campaign.metricsSent ?? 0} enviados`,
-      metricsSubtitle: `${campaign.metricsOpened ?? 0} aperturas`,
-    };
-  }), [campaigns]);
-
-  const handleDelete = async (campaignId) => {
-    try {
-      if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-      const campaignToDelete = campaigns.find((c) => c.id === campaignId);
-      await deleteCampaign(campaignId);
-      setRecentlyDeleted(campaignToDelete);
-      setCampaigns((prev) => prev.filter((c) => c.id !== campaignId));
-      setShowToast(true);
-      deleteTimeoutRef.current = setTimeout(() => {
-        setRecentlyDeleted(null);
-        setShowToast(false);
-      }, 5000);
-    } catch (err) {
-      setError(err.message);
-    }
+  const handleDelete = (campaignId) => {
+    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+    const campaignToDelete = campaigns.find(c => c.id === campaignId);
+    setRecentlyDeleted(campaignToDelete);
+    setCampaigns(prev => prev.map(c => c.id === campaignId ? { ...c, isHiding: true } : c));
+    setShowToast(true);
+    setTimeout(() => {
+      setCampaigns(prev => prev.filter(c => c.id !== campaignId));
+    }, 500);
+    deleteTimeoutRef.current = setTimeout(() => {
+      setRecentlyDeleted(null);
+      setShowToast(false);
+    }, 5000);
   };
-
-  const handleUndoDelete = async () => {
-    if (!recentlyDeleted) return;
-
-    try {
-      const [datePart, timePart = '09:00'] = (recentlyDeleted.scheduledAt || '').split('T');
-      const recreated = await createCampaign({
-        name: recentlyDeleted.name,
-        message: recentlyDeleted.message,
-        channel: recentlyDeleted.channel,
-        segment: recentlyDeleted.segment,
-        scheduleDate: datePart ?? '',
-        scheduleTime: timePart.slice(0, 5),
-      });
-      setCampaigns((prev) => [recreated, ...prev]);
-    } catch (err) {
-      setError(err.message);
-    } finally {
+  const handleUndoDelete = () => {
+    if (recentlyDeleted) {
+      setCampaigns(prev => [recentlyDeleted, ...prev].sort((a, b) => b.id - a.id));
       setRecentlyDeleted(null);
       setShowToast(false);
       if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
     }
   };
+  // --- FIN DE LÓGICA DE ELIMINACIÓN ---
 
-  const handleSaveCampaign = async (formData) => {
-    const payload = {
-      name: formData.name,
-      message: formData.message,
-      channel: formData.channel,
-      segment: formData.segment,
-      scheduleDate: formData.scheduleDate,
-      scheduleTime: formData.scheduleTime,
-    };
-
-    try {
-      if (editingCampaign) {
-        const updated = await updateCampaign(editingCampaign.id, payload);
-        setCampaigns((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-        setEditingCampaign(null);
-      } else {
-        const created = await createCampaign(payload);
-        setCampaigns((prev) => [created, ...prev]);
-      }
-    } catch (err) {
-      setError(err.message);
+  // --- FUNCIÓN UNIFICADA PARA CREAR Y EDITAR ---
+  const handleSaveCampaign = (formData) => {
+    if (editingCampaign) {
+      // MODO EDICIÓN: Actualiza la campaña existente
+      setCampaigns(prev => 
+        prev.map(c => 
+          c.id === editingCampaign.id 
+            ? { 
+                ...c, // Mantiene ID, métricas y estado originales
+                name: formData.name,
+                type: formData.type,
+                message: formData.message,
+                channel: formData.channel,
+                segment: formData.segment,
+                schedule: `${formData.scheduleDate} ${formData.scheduleTime || '09:00'}`,
+              } 
+            : c
+        )
+      );
+      setEditingCampaign(null); // Sale del modo edición
+    } else {
+      // MODO CREACIÓN: Añade una nueva campaña
+      const newCampaign = {
+        id: Date.now(),
+        name: formData.name,
+        type: formData.type,
+        message: formData.message,
+        channel: formData.channel,
+        segment: formData.segment,
+        schedule: `${formData.scheduleDate} ${formData.scheduleTime || '09:00'}`,
+        metrics: '0 enviados',
+        metricsSubtitle: 'Pendiente',
+        status: 'Programada',
+      };
+      setCampaigns(prev => [newCampaign, ...prev]);
     }
   };
 
+  // --- NUEVAS FUNCIONES PARA LOS BOTONES DE ACCIÓN ---
   const handleEdit = (campaignId) => {
-    const campaignToEdit = campaigns.find((c) => c.id === campaignId);
-    if (!campaignToEdit) return;
-
-    setEditingCampaign({
-      ...campaignToEdit,
-      schedule: campaignToEdit.scheduledAt,
-    });
-    setActiveTab('Crear notificación');
+    const campaignToEdit = campaigns.find(c => c.id === campaignId);
+    setEditingCampaign(campaignToEdit); // Guardamos la campaña a editar en el estado
+    setActiveTab('Crear notificación'); // Cambiamos a la pestaña del formulario
   };
 
   const handleViewDetails = (campaign) => {
     setModalContent({
       title: `Detalles de: ${campaign.name}`,
-      body: campaign.message || 'Esta campaña no tiene un mensaje detallado.',
+      body: campaign.message || "Esta campaña no tiene un mensaje detallado."
     });
-    setIsModalOpen(true);
+    setIsModalOpen(true); // Abrimos el modal
   };
-
+  
   return (
-    <div className="notifications-page">
-      <header className="page-header-notifications">
-        <div>
-          <h1 className="title">Gestión de notificaciones</h1>
-          <p className="subtitle">Crea y gestiona campañas de comunicación para estudiantes y personal</p>
-        </div>
-        {activeTab === 'Campañas' && (
-          <button className="btn btn-primary" onClick={() => {
-            setEditingCampaign(null);
-            setActiveTab('Crear notificación');
-          }}>
-            + Nueva campaña
-          </button>
-        )}
-      </header>
+    <AppLayout>
+      <div className="notifications-page">
+        <header className="page-header-notifications">
+          <div>
+            <h1 className="title">Gestión de notificaciones</h1>
+            <p className="subtitle">Crea y gestiona campañas de comunicación para estudiantes y personal</p>
+          </div>
+          {activeTab === 'Campañas' && (
+            <button className="btn btn-primary" onClick={() => {
+              setEditingCampaign(null);
+              setActiveTab('Crear notificación');
+            }}>
+              + Nueva campaña
+            </button>
+          )}
+        </header>
 
-      <nav className="tabs-nav">
-        <button className={`tab ${activeTab === 'Campañas' ? 'active' : ''}`} onClick={() => setActiveTab('Campañas')}>Campañas</button>
-        <button className={`tab ${activeTab === 'Crear notificación' ? 'active' : ''}`} onClick={() => setActiveTab('Crear notificación')}>Crear notificación</button>
-        <button className={`tab ${activeTab === 'Plantillas' ? 'active' : ''}`} onClick={() => setActiveTab('Plantillas')}>Plantillas</button>
-        <button className={`tab ${activeTab === 'Logs de envío' ? 'active' : ''}`} onClick={() => setActiveTab('Logs de envío')}>Logs de envío</button>
-      </nav>
+        <nav className="tabs-nav">
+          <button className={`tab ${activeTab === 'Campañas' ? 'active' : ''}`} onClick={() => setActiveTab('Campañas')}>Campañas</button>
+          <button className={`tab ${activeTab === 'Crear notificación' ? 'active' : ''}`} onClick={() => setActiveTab('Crear notificación')}>Crear notificación</button>
+          <button className={`tab ${activeTab === 'Plantillas' ? 'active' : ''}`} onClick={() => setActiveTab('Plantillas')}>Plantillas</button>
+          <button className={`tab ${activeTab === 'Logs de envío' ? 'active' : ''}`} onClick={() => setActiveTab('Logs de envío')}>Logs de envío</button>
+        </nav>
 
-      {error && (
-        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error}
-        </div>
-      )}
-
-      {activeTab === 'Campañas' && (
-        <CampaignsView
-          campaigns={formattedCampaigns}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          onViewDetails={handleViewDetails}
-        />
-      )}
-      {activeTab === 'Crear notificación' && (
-        <CreateNotificationView
-          onSave={handleSaveCampaign}
-          onSwitchTab={setActiveTab}
-          editingCampaign={editingCampaign}
-        />
-      )}
+        {activeTab === 'Campañas' &&
+          <CampaignsView
+            campaigns={campaigns}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
+            onViewDetails={handleViewDetails}
+          />
+        }
+        {activeTab === 'Crear notificación' &&
+          <CreateNotificationView
+            onSave={handleSaveCampaign}
+            onSwitchTab={setActiveTab}
+            editingCampaign={editingCampaign}
+          />
+        }
+      </div>
 
       {showToast && <Toast message="Campaña eliminada." onUndo={handleUndoDelete} onDismiss={() => setShowToast(false)} />}
 
@@ -180,6 +148,6 @@ export default function NotificationsPage() {
       >
         <p>{modalContent.body}</p>
       </Modal>
-    </div>
+    </AppLayout>
   );
 }

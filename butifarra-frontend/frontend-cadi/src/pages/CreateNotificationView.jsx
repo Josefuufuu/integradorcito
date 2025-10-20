@@ -6,8 +6,8 @@ export default function CreateNotificationView({ onSave, onSwitchTab, editingCam
     name: '',
     type: '',
     message: '',
-    channel: 'EMAIL',
-    segment: 'TODOS',
+    channel: '',
+    segment: '',
     userType: 'cadi',
     scheduleDate: '',
     scheduleTime: '',
@@ -17,14 +17,13 @@ export default function CreateNotificationView({ onSave, onSwitchTab, editingCam
   useEffect(() => {
     if (editingCampaign) {
       // Si estamos editando, llenamos el formulario con los datos existentes
-      const scheduled = editingCampaign.schedule || editingCampaign.scheduledAt || '';
-      const [date, time] = scheduled.split(' ');
+      const [date, time] = (editingCampaign.schedule || ' ').split(' ');
       setFormData({
         name: editingCampaign.name || '',
         type: editingCampaign.type || '',
         message: editingCampaign.message || '',
-        channel: editingCampaign.channel || 'EMAIL',
-        segment: editingCampaign.segment || 'TODOS',
+        channel: editingCampaign.channel || '',
+        segment: editingCampaign.segment || '',
         userType: editingCampaign.userType || 'cadi', // Aseguramos que se cargue el userType
         scheduleDate: date || '',
         scheduleTime: time || '',
@@ -32,8 +31,8 @@ export default function CreateNotificationView({ onSave, onSwitchTab, editingCam
     } else {
       // Si no estamos editando (creando uno nuevo), nos aseguramos de que el formulario esté vacío
       setFormData({
-        name: '', type: '', message: '', channel: 'EMAIL',
-        segment: 'TODOS', userType: 'cadi', scheduleDate: '', scheduleTime: '',
+        name: '', type: '', message: '', channel: '',
+        segment: '', userType: 'cadi', scheduleDate: '', scheduleTime: '',
       });
     }
   }, [editingCampaign]); // Se ejecuta solo si 'editingCampaign' cambia
@@ -89,9 +88,9 @@ export default function CreateNotificationView({ onSave, onSwitchTab, editingCam
           <div className="form-field">
             <label htmlFor="channel">Canal de envío</label>
             <select id="channel" name="channel" value={formData.channel} onChange={handleInputChange} required>
-              <option value="EMAIL">Correo electrónico</option>
+              <option value="">Seleccionar canal...</option>
               <option value="PUSH">Notificación Push (App)</option>
-              <option value="SMS">Mensaje de texto (SMS)</option>
+              <option value="CORREO">Correo Electrónico</option>
             </select>
           </div>
         </div>
@@ -105,9 +104,11 @@ export default function CreateNotificationView({ onSave, onSwitchTab, editingCam
           <div className="form-field">
             <label htmlFor="segment">Destinatarios</label>
             <select id="segment" name="segment" value={formData.segment} onChange={handleInputChange} required>
-              <option value="TODOS">Toda la comunidad</option>
-              <option value="ESTUDIANTES">Solo estudiantes</option>
-              <option value="COLABORADORES">Colaboradores CADI</option>
+              <option value="">Seleccionar audiencia...</option>
+              <option value="Todos los usuarios">Todos los usuarios</option>
+              <option value="Solo Estudiantes">Solo Estudiantes</option>
+              <option value="Solo Profesores">Solo Profesores</option>
+              <option value="Solo Egresados">Solo Egresados</option>
             </select>
           </div>
 
